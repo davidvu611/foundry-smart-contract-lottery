@@ -9,6 +9,8 @@ fs_permissions=[
         {path = "./broadcast", access = "read" },
         {path = "./reports", access = "read" }
 ]
+[fuzz]
+runs = 256  # Number of fuzz test runs/Number of run with random input
 
 [etherscan]
 mainnet = { key = "${ETHERSCAN_API_KEY}" }

@@ -1,18 +1,20 @@
 # Compiler files
 cache/
 out/
+zkout/
 
 # Ignores development broadcast logs
-!/broadcast
-/broadcast/*/31337/
-/broadcast/**/dry-run/
-/broadcast/
+/broadcast
 
 # Docs
 docs/
 
+# Lis
+lib/
+
 # Dotenv file
 .env
 
-# zkSync
-zkout/
+# others
+*.lock
+foundry.lock

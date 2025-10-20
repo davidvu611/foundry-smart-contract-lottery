@@ -39,7 +39,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     uint256 private s_lastBlockTimestamp;
     RaffleState private s_raffleState;
     address payable[] private s_players;
-    address payable recentWinner;
+    address payable s_recentWinner;
 
     /* Events */
     event RaffleEnter(address indexed player);
@@ -47,10 +47,10 @@ contract Raffle is VRFConsumerBaseV2Plus {
     event RequestRaffleWinner(uint256 indexed requestId);
 
     constructor(
-        uint256 entranceFee,
-        uint256 interval,
-        bytes32 gasLane, //Gas price
         uint256 subscriptionId,
+        bytes32 gasLane, //Gas price
+        uint256 interval,
+        uint256 entranceFee,
         uint32 callbackGasLimit,
         address vrfCoordinatorV2
     ) VRFConsumerBaseV2Plus(vrfCoordinatorV2) {
@@ -138,15 +138,17 @@ contract Raffle is VRFConsumerBaseV2Plus {
         uint256[] calldata randomWords
     ) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
-        recentWinner = s_players[indexOfWinner];
+        s_recentWinner = s_players[indexOfWinner];
         // Reset the raffle
         s_players = new address payable[](0);
         s_raffleState = RaffleState.OPEN;
         s_lastBlockTimestamp = block.timestamp;
-        emit WinnerPicked(recentWinner);
+        emit WinnerPicked(s_recentWinner);
 
         // Send the money to the winner: interact with external contract
-        (bool success, ) = recentWinner.call{value: address(this).balance}("");
+        (bool success, ) = s_recentWinner.call{value: address(this).balance}(
+            ""
+        );
         if (!success) {
             revert Raffle__SendRaffleWinnerFailed();
         }
@@ -163,5 +165,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     function getPlayer(uint indexOfPlayer) external view returns (address) {
         return s_players[indexOfPlayer];
+    }
+
+    function getLastTimeStamp() external view returns (uint) {
+        return s_lastBlockTimestamp;
+    }
+
+    function getRecentWinner() external view returns (address) {
+        return s_recentWinner;
     }
 }
